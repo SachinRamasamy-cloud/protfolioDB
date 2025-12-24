@@ -24,18 +24,18 @@ export const getByIDproject = async (req, res) => {
 }
 
 // update
-export const updatePro = async (req, res) => {
-    try {
-        const project = await Project.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true }
-        )
-        res.json(project)
-    } catch (err) {
-        res.status(400).json({ message: "Cant update the project" })
-    }
-}
+// export const updatePro = async (req, res) => {
+//     try {
+//         const project = await Project.findByIdAndUpdate(
+//             req.params.id,
+//             req.body,
+//             { new: true }
+//         )
+//         res.json(project)
+//     } catch (err) {
+//         res.status(400).json({ message: "Cant update the project" })
+//     }
+// }
 
 // delete
 export const delPro = async (req, res) => {
@@ -47,14 +47,57 @@ export const delPro = async (req, res) => {
     }
 }
 
-// create
+// // create
+// export const createPro = async (req, res) => {
+//     try {
+//         const project = await Project.create(req.body)
+//         res.status(200).json(project)
+
+//     } catch (err) {
+//         console.log(err)
+//         res.status(400).json({ message: "Faild to add data" })
+//     }
+// }
+
+
 export const createPro = async (req, res) => {
     try {
-        const project = await Project.create(req.body)
-        res.status(200).json(project)
+        const project = await Project.create({
+            ...req.body,
+            // image: req.file ? req.file.path : null,
+            image: req.file ? req.file.path.replace(/\\/g, "/") : null,
+        });
 
+        res.status(201).json(project);
     } catch (err) {
-        console.log(err)
-        res.status(400).json({ message: "Faild to add data" })
+        console.error(err);
+        res.status(400).json({ message: "Failed to add data" });
     }
-}
+};
+
+
+export const updatePro = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Prepare data to update
+        const updateData = { ...req.body };
+
+
+        // if (req.file) {
+        //   updateData.image = req.file.path;
+        // }
+        if (req.file) {
+            updateData.image = req.file.path.replace(/\\/g, "/");
+        }
+
+        const project = await Project.findByIdAndUpdate(id, updateData, { new: true });
+
+        if (!project) return res.status(404).json({ message: "Project not found" });
+
+        res.json(project);
+    } catch (err) {
+        console.error(err);
+        res.status(400).json({ message: "Failed to update project" });
+    }
+};
