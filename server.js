@@ -38,7 +38,13 @@ connectDB();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: [
+        "http://localhost:5173",
+        "https://sachinramasamy-cloud.github.io"
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+}));
 
 app.use(express.json());
 
